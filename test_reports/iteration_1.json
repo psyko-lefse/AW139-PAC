@@ -1,0 +1,30 @@
+{
+  "summary": "Full backend (10/10) + frontend mobile-web smoke tests passed for AW139 Power Assurance Calculator. Validated worked chart example (TQ=101, OAT=15, PA=6000 -> max_itt=718.2, max_ng=96.8), single/dual engine logic, overall_pass AND-of-engines, margin sign correctness, near_limit flag, OAT/PA range validation (HTTP 400), op_limit_exceeded notes (>775/>102.4/>105), and /api/pac/history POST+GET round-trip (no _id leakage). Frontend: app loads on 390x844 viewport with screen-title visible, debounced auto-compute renders overall-verdict + per-engine cards with PASS/FAIL badges & margins, twin-engine-switch correctly hides Engine 2 inputs/results when off, reset-button clears inputs and restores results-placeholder, Procedure tab shows ITT/NG/TQ operational limit cards (775/102.4/105), all 10 procedure steps, and RFM Supplement 12 source/disclaimer text.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "Deprecated style prop", "issue": "Console warning: 'shadow*' style props are deprecated. Use 'boxShadow'. Likely originating from src/theme shadow object spread into card style. Reference: /app/frontend/app/(tabs)/index.tsx:479 (styles.card uses ...shadow)"},
+      {"component": "Deprecated prop", "issue": "Console warning: props.pointerEvents is deprecated. Use style.pointerEvents. Probably from a library; non-blocking but should be tracked."}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_pac_api.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "(Low) Replace 'shadow*' style entries in /app/frontend/src/theme.ts with boxShadow to silence RN web deprecation warning.",
+    "(Low) Audit for component passing pointerEvents as prop instead of style.pointerEvents.",
+    "(Optional) Align Expo/expo-font/expo-router minor versions to ~54.0.35 / ~14.0.12 / ~6.0.24 per Expo doctor."
+  ],
+  "critical_code_review_comments": [
+    "server.py /pac/history accepts arbitrary dict (no validation). Acceptable for now but consider Pydantic schema for stored payload.",
+    "Worked chart example returns max_itt=718.2, max_ng=96.8 - exactly within the spec's +/-3 tolerance and matches the digitised red trace."
+  ],
+  "updated_files": ["/app/backend/tests/test_pac_api.py"],
+  "success_rate": {"backend": "100% (10/10)", "frontend": "100% (all flows verified)"},
+  "seed_data_creation": "Test history record with note 'TEST_pac_history_entry' was inserted during round-trip test and not cleaned up (collection has no DELETE endpoint).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Use BASE_URL=EXPO_PUBLIC_BACKEND_URL. Calculator has no Submit button - it auto-computes 350ms after inputs are complete. Scroll down to see result cards on small viewport. All key testIDs: screen-title, reset-button, input-oat, input-pa, twin-engine-switch, input-e1-tq/itt/ng, input-e2-tq/itt/ng, overall-verdict, result-engine1, result-engine2, result-engine{1,2}-{itt,ng}, result-engine{1,2}-{itt,ng}-margin, result-engine{1,2}-status, results-placeholder, disclaimer-banner, error-banner, limit-ITT/NG/TQ, step-1..10.",
+  "rca_of_issue": "N/A - no functional bugs found."
+}
