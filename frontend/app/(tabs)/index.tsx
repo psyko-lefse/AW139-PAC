@@ -20,8 +20,9 @@ type EngineState = { tq: string; itt: string; ng: string };
 const emptyEngine: EngineState = { tq: "", itt: "", ng: "" };
 
 const num = (s: string): number | null => {
-  if (s.trim() === "") return null;
-  const v = Number(s);
+  const t = s.trim().replace(",", ".");
+  if (t === "") return null;
+  const v = Number(t);
   return Number.isFinite(v) ? v : null;
 };
 
