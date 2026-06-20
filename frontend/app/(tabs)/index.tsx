@@ -114,7 +114,7 @@ export default function CalculatorScreen() {
             <Text style={styles.headerTitle} testID="screen-title">
               Power Assurance
             </Text>
-            <Text style={styles.headerSub}>AW139 · Hover · NR 102%</Text>
+            <Text style={styles.headerSub}>AW139 · Hover · NR 102% · Basic inlet</Text>
           </View>
           <Pressable
             onPress={reset}
