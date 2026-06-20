@@ -179,7 +179,7 @@ export default function CalculatorScreen() {
         <View style={styles.card}>
           <NumberField
             testID="input-e1-tq"
-            label="Engine Torque (TQ)"
+            label="Torque"
             unit="%"
             value={e1.tq}
             onChangeText={(t) => setE1((s) => ({ ...s, tq: t }))}
@@ -210,7 +210,7 @@ export default function CalculatorScreen() {
             <View style={styles.card}>
               <NumberField
                 testID="input-e2-tq"
-                label="Engine Torque (TQ)"
+                label="Torque"
                 unit="%"
                 value={e2.tq}
                 onChangeText={(t) => setE2((s) => ({ ...s, tq: t }))}
