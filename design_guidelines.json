@@ -1,0 +1,129 @@
+{
+  "app_name": "AW139 PAC Tool",
+  "personality": "1 iOS-Native Clean with Mono-Numerical Variant",
+  "personality_one_liner": "A precision aviation instrument tool prioritizing absolute legibility, tabular numerals, trustworthy hierarchy, and stark clinical contrast over decoration.",
+  "color": {
+    "surface": "#FFFFFF",
+    "onSurface": "#101828",
+    "surfaceSecondary": "#F2F4F7",
+    "onSurfaceSecondary": "#344054",
+    "surfaceTertiary": "#E4E7EC",
+    "onSurfaceTertiary": "#475467",
+    "surfaceInverse": "#101828",
+    "onSurfaceInverse": "#FFFFFF",
+    "brand": "#101828",
+    "brandPrimary": "#1D2939",
+    "onBrandPrimary": "#FFFFFF",
+    "brandSecondary": "#344054",
+    "onBrandSecondary": "#FFFFFF",
+    "brandTertiary": "#F2F4F7",
+    "onBrandTertiary": "#101828",
+    "success": "#027A48",
+    "onSuccess": "#FFFFFF",
+    "warning": "#DC6803",
+    "onWarning": "#FFFFFF",
+    "error": "#D92D20",
+    "onError": "#FFFFFF",
+    "info": "#101828",
+    "onInfo": "#FFFFFF",
+    "border": "#E4E7EC",
+    "borderStrong": "#98A2B3",
+    "divider": "#EAECF0"
+  },
+  "typography": {
+    "displayFontFamily": "Inter",
+    "textFontFamily": "SpaceMono",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Generous vertical breathing room for forms to prevent mis-taps. Use tabular figures (SpaceMono) for all numeric inputs and outputs.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 4,
+    "md": 8,
+    "lg": 12,
+    "pill": 999
+  },
+  "shadow_tier": 1,
+  "navigation": "bottom_tabs",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": false,
+    "do's": ["Use subtle blur only for sticky headers if content scrolls behind them"],
+    "dont's": ["Avoid heavy glassmorphism, it reduces clinical legibility and contrast."]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Calculator",
+      "purpose": "Input OAT, Altitude, and engine parameters to instantly view margins and PASS/FAIL verdict.",
+      "states": {
+        "loading": "Centered spinner",
+        "empty": "Inputs empty, results panel showing placeholder dashes ('--')",
+        "error": "Red banner at top explaining invalid inputs"
+      },
+      "layout": "Follow clinical guidelines: Keep the calculator directly on the main scrollable screen. Group inputs structurally (Environment vs Engine 1 vs Engine 2). Use 'SpaceMono' for all input fields and results. Results must update automatically and sit distinctly below the form. Wrap the final verdict in a high-contrast status container (Success/Warning/Error color) so it's instantly obvious."
+    },
+    {
+      "name": "Procedure",
+      "purpose": "Reference official RFM operational limits and check steps.",
+      "states": {
+        "loading": "Skeleton text",
+        "empty": "No procedures found",
+        "error": "Failed to load procedures"
+      },
+      "layout": "Editorial-style stacked text. Use a featured hero image of the AW139 at the top (with gradient scrim). Clear typography hierarchy with bold limitations."
+    }
+  ],
+  "images": {
+    "cockpit_hero": {
+      "url": "https://images.pexels.com/photos/10264866/pexels-photo-10264866.jpeg",
+      "alt": "Helicopter instrument panel"
+    },
+    "aw139_cover": {
+      "url": "https://images.pexels.com/photos/15118138/pexels-photo-15118138.jpeg",
+      "alt": "AW139 Helicopter in flight"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Use pure clinical light theme. Avoid decorative aesthetics; focus on high-contrast, technical UI.",
+    "Implement SpaceMono or similar monospaced font for all numerical inputs, gauges, and results to ensure tabular alignment and prevent misreading.",
+    "Place the Environment inputs (OAT, Pressure Altitude) at the top, followed by two separate sections or a segmented control for Engine 1 and Engine 2 inputs.",
+    "Results must be visible on the same screen (scrollable) and compute automatically. Do not hide them behind a 'Calculate' button.",
+    "Pass/Fail indicators must be unmissable. Use the exact Success (#027A48) or Error (#D92D20) background colors for the final verdict banner with white text.",
+    "Include the safety disclaimer at the bottom of the calculator screen or as a sticky banner on first launch.",
+    "Use the provided Phosphor icon set (outlined) for UI elements."
+  ],
+  "haptics": {
+    "events": {
+      "calculate_success": "notification_success",
+      "calculate_fail": "notification_error",
+      "input_focus": "selection",
+      "tab_press": "light"
+    }
+  }
+}
