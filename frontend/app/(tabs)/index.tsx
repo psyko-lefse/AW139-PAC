@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Pressable,
   Switch,
   ActivityIndicator,
 } from "react-native";
@@ -15,6 +14,7 @@ import * as Haptics from "expo-haptics";
 import { colors, spacing, radius, mono, font, shadow } from "@/src/theme";
 import { NumberField } from "@/src/components/NumberField";
 import { calculate, CalcResponse, EngineResult } from "@/src/api";
+import { resetBus } from "@/src/resetBus";
 
 type EngineState = { tq: string; itt: string; ng: string };
 const emptyEngine: EngineState = { tq: "", itt: "", ng: "" };
@@ -94,7 +94,7 @@ export default function CalculatorScreen() {
     };
   }, [ready, run]);
 
-  const reset = () => {
+  const reset = useCallback(() => {
     Haptics.selectionAsync().catch(() => {});
     setOat("");
     setPa("");
@@ -103,7 +103,9 @@ export default function CalculatorScreen() {
     setResult(null);
     setError(null);
     lastVerdict.current = null;
-  };
+  }, []);
+
+  useEffect(() => resetBus.subscribe(reset), [reset]);
 
   return (
     <View style={styles.root}>
@@ -116,15 +118,6 @@ export default function CalculatorScreen() {
             </Text>
             <Text style={styles.headerSub}>Hover · NR 102% · Basic inlet</Text>
           </View>
-          <Pressable
-            onPress={reset}
-            style={styles.resetBtn}
-            testID="reset-button"
-            hitSlop={8}
-          >
-            <Ionicons name="refresh" size={16} color={colors.onSurfaceSecondary} />
-            <Text style={styles.resetTxt}>Reset</Text>
-          </Pressable>
         </View>
       </View>
 
