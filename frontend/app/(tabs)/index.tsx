@@ -138,15 +138,6 @@ export default function CalculatorScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Disclaimer */}
-        <View style={styles.disclaimer} testID="disclaimer-banner">
-          <Ionicons name="warning-outline" size={16} color={colors.warning} />
-          <Text style={styles.disclaimerTxt}>
-            Chart values are digitised approximations. Always verify against the
-            official RFM chart before operational use.
-          </Text>
-        </View>
-
         {/* Ambient conditions */}
         <Text style={styles.sectionLabel}>AMBIENT CONDITIONS</Text>
         <View style={styles.card}>

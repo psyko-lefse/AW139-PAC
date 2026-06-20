@@ -14,7 +14,6 @@ type Props = {
 
 export function NumberField({
   label,
-  unit,
   value,
   onChangeText,
   placeholder,
@@ -36,7 +35,6 @@ export function NumberField({
           returnKeyType="done"
           selectionColor={colors.brand}
         />
-        {unit ? <Text style={styles.unit}>{unit}</Text> : null}
       </View>
     </View>
   );
@@ -67,11 +65,5 @@ const styles = StyleSheet.create({
     fontSize: font.xl,
     color: colors.onSurface,
     padding: 0,
-  },
-  unit: {
-    fontFamily: mono,
-    fontSize: font.base,
-    color: colors.muted,
-    marginLeft: spacing.sm,
   },
 });
