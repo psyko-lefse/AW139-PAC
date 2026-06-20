@@ -37,7 +37,7 @@ export default function ProcedureScreen() {
         {/* Hero */}
         <View style={styles.hero}>
           <Image
-            source={{ uri: "https://images.pexels.com/photos/15118138/pexels-photo-15118138.jpeg" }}
+            source={require("../../assets/images/aw139-hero.png")}
             style={StyleSheet.absoluteFill}
             contentFit="cover"
             transition={300}
