@@ -105,7 +105,7 @@ export default function ProcedureScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.surface },
+  root: { flex: 1, backgroundColor: colors.surfaceSecondary },
   hero: { height: 220, backgroundColor: colors.brand, justifyContent: "flex-end" },
   heroContent: { padding: spacing.lg },
   heroKicker: {
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   limitsRow: { flexDirection: "row", gap: spacing.md },
   limitCard: {
     flex: 1,
-    backgroundColor: colors.surfaceSecondary,
+    backgroundColor: colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
@@ -149,13 +149,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  stepNumTxt: { fontFamily: mono, color: "#FFFFFF", fontSize: font.sm, fontWeight: "700" },
+  stepNumTxt: { fontFamily: mono, color: colors.onSurfaceInverse, fontSize: font.sm, fontWeight: "700" },
   stepTxt: { flex: 1, fontSize: font.base, lineHeight: 21, color: colors.onSurfaceSecondary, paddingTop: 3 },
   emm: {
     flexDirection: "row",
     gap: spacing.sm,
-    backgroundColor: colors.surfaceSecondary,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: spacing.md,
     marginTop: spacing.xl,
     alignItems: "flex-start",

@@ -43,11 +43,12 @@ export function NumberField({
 const styles = StyleSheet.create({
   wrap: { flex: 1 },
   label: {
-    fontSize: font.sm,
-    color: colors.onSurfaceSecondary,
-    fontWeight: "600",
+    fontSize: 11,
+    color: colors.muted,
+    fontWeight: "700",
     marginBottom: spacing.xs,
-    letterSpacing: 0.2,
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
   },
   inputRow: {
     flexDirection: "row",

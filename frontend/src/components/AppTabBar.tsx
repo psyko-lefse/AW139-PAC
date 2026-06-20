@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
-import { colors, spacing, radius, font } from "@/src/theme";
+import { colors, spacing, radius, font, glow } from "@/src/theme";
 import { resetBus } from "@/src/resetBus";
 
 const META: Record<string, { label: string; icon: keyof typeof Ionicons.glyphMap }> = {
@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.brand,
     alignItems: "center",
     justifyContent: "center",
+    ...glow,
   },
   resetLabel: { fontSize: 11, fontWeight: "600", color: colors.onSurfaceSecondary },
 });

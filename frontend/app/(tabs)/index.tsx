@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 
-import { colors, spacing, radius, mono, font, shadow } from "@/src/theme";
+import { colors, spacing, radius, mono, font, shadow, glow } from "@/src/theme";
 import { NumberField } from "@/src/components/NumberField";
 import { calculate, CalcResponse, EngineResult } from "@/src/api";
 import { resetBus } from "@/src/resetBus";
@@ -113,11 +113,20 @@ export default function CalculatorScreen() {
       {/* Sticky header */}
       <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
         <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.headerTitle} testID="screen-title">
-              AW139 power assurance
-            </Text>
-            <Text style={styles.headerSub}>Hover · NR 102% · Basic inlet</Text>
+          <View style={styles.headerLeft}>
+            <View style={styles.logo}>
+              <Ionicons name="airplane" size={20} color={colors.onSurfaceInverse} />
+            </View>
+            <View style={styles.headerTitles}>
+              <Text style={styles.headerTitle} testID="screen-title">
+                AW139 POWER ASSURANCE
+              </Text>
+              <Text style={styles.headerSub}>HOVER · NR 102% · BASIC INLET</Text>
+            </View>
+          </View>
+          <View style={styles.statusPill}>
+            <View style={styles.statusDot} />
+            <Text style={styles.statusTxt}>READY</Text>
           </View>
         </View>
       </View>
@@ -271,6 +280,7 @@ export default function CalculatorScreen() {
 }
 
 function VerdictBanner({ pass }: { pass: boolean }) {
+  const fg = pass ? colors.onSurfaceInverse : colors.onError;
   return (
     <View
       style={[styles.verdict, pass ? styles.verdictPass : styles.verdictFail]}
@@ -279,9 +289,9 @@ function VerdictBanner({ pass }: { pass: boolean }) {
       <Ionicons
         name={pass ? "checkmark-circle" : "close-circle"}
         size={22}
-        color={colors.onSurfaceInverse}
+        color={fg}
       />
-      <Text style={styles.verdictTxt}>
+      <Text style={[styles.verdictTxt, { color: fg }]}>
         {pass ? "POWER ASSURED" : "POWER NOT ASSURED"}
       </Text>
     </View>
@@ -413,44 +423,50 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  headerTitle: { fontSize: font["2xl"], fontWeight: "800", color: colors.onSurface },
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: spacing.md, flex: 1 },
+  logo: {
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    backgroundColor: colors.brand,
+    alignItems: "center",
+    justifyContent: "center",
+    ...glow,
+  },
+  headerTitles: { flex: 1 },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.onSurface,
+    letterSpacing: 0.5,
+  },
   headerSub: {
     fontFamily: mono,
-    fontSize: font.sm,
+    fontSize: 10,
     color: colors.muted,
-    marginTop: 2,
+    marginTop: 3,
+    letterSpacing: 1.2,
   },
-  resetBtn: {
+  statusPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    gap: 6,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     borderRadius: radius.pill,
-    backgroundColor: colors.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: colors.brand,
+    backgroundColor: colors.brandSoft,
+    marginLeft: spacing.sm,
   },
-  resetTxt: { fontSize: font.sm, fontWeight: "600", color: colors.onSurfaceSecondary },
+  statusDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.brand },
+  statusTxt: { color: colors.brand, fontSize: 11, fontWeight: "800", letterSpacing: 1 },
   scroll: { flex: 1 },
-  disclaimer: {
-    flexDirection: "row",
-    gap: spacing.sm,
-    backgroundColor: colors.warningSurface,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginBottom: spacing.xl,
-    alignItems: "flex-start",
-  },
-  disclaimerTxt: {
-    flex: 1,
-    fontSize: font.sm,
-    lineHeight: 18,
-    color: "#7A4A00",
-  },
   sectionLabel: {
     fontSize: font.sm,
-    fontWeight: "700",
+    fontWeight: "800",
     color: colors.muted,
-    letterSpacing: 1,
+    letterSpacing: 1.5,
     marginBottom: spacing.sm,
     marginTop: spacing.xs,
   },
@@ -500,7 +516,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginBottom: spacing.lg,
   },
-  verdictPass: { backgroundColor: colors.success },
+  verdictPass: { backgroundColor: colors.success, ...glow },
   verdictFail: { backgroundColor: colors.error },
   verdictTxt: {
     flex: 1,
@@ -558,5 +574,5 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   noteRow: { flexDirection: "row", gap: spacing.xs, alignItems: "flex-start" },
-  noteTxt: { flex: 1, fontSize: font.sm, color: "#7A271A", lineHeight: 17 },
+  noteTxt: { flex: 1, fontSize: font.sm, color: "#FF9B93", lineHeight: 17 },
 });
