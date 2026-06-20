@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 
@@ -114,19 +115,17 @@ export default function CalculatorScreen() {
       <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
         <View style={styles.headerRow}>
           <View style={styles.headerLeft}>
-            <View style={styles.logo}>
-              <Ionicons name="airplane" size={20} color={colors.onSurfaceInverse} />
-            </View>
+            <Image
+              source={require("../../assets/images/app-logo.png")}
+              style={styles.logo}
+              contentFit="cover"
+            />
             <View style={styles.headerTitles}>
               <Text style={styles.headerTitle} testID="screen-title">
                 AW139 POWER ASSURANCE
               </Text>
               <Text style={styles.headerSub}>HOVER · NR 102% · BASIC INLET</Text>
             </View>
-          </View>
-          <View style={styles.statusPill}>
-            <View style={styles.statusDot} />
-            <Text style={styles.statusTxt}>READY</Text>
           </View>
         </View>
       </View>
@@ -154,7 +153,7 @@ export default function CalculatorScreen() {
             />
             <NumberField
               testID="input-pa"
-              label="Pressure Altitude"
+              label="Press alt"
               unit="ft"
               value={pa}
               onChangeText={setPa}
@@ -425,13 +424,10 @@ const styles = StyleSheet.create({
   },
   headerLeft: { flexDirection: "row", alignItems: "center", gap: spacing.md, flex: 1 },
   logo: {
-    width: 42,
-    height: 42,
+    width: 46,
+    height: 46,
     borderRadius: 13,
-    backgroundColor: colors.brand,
-    alignItems: "center",
-    justifyContent: "center",
-    ...glow,
+    backgroundColor: "#FFFFFF",
   },
   headerTitles: { flex: 1 },
   headerTitle: {
@@ -447,20 +443,6 @@ const styles = StyleSheet.create({
     marginTop: 3,
     letterSpacing: 1.2,
   },
-  statusPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.brand,
-    backgroundColor: colors.brandSoft,
-    marginLeft: spacing.sm,
-  },
-  statusDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.brand },
-  statusTxt: { color: colors.brand, fontSize: 11, fontWeight: "800", letterSpacing: 1 },
   scroll: { flex: 1 },
   sectionLabel: {
     fontSize: font.sm,
