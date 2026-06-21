@@ -6,11 +6,10 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Image } from "expo-image";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 
-import { colors, spacing, radius, mono, font, shadow } from "@/src/theme";
+import { colors, spacing, radius, mono, font, shadow, glow } from "@/src/theme";
 import { NumberField } from "@/src/components/NumberField";
 import { ChartTrace } from "@/src/components/ChartTrace";
 import { CalcResponse, EngineResult } from "@/src/api";
@@ -130,11 +129,9 @@ export default function CalculatorScreen() {
       {/* Sticky header */}
       <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
         <View style={styles.headerRow}>
-          <Image
-            source={require("../../assets/images/app-logo.png")}
-            style={styles.logo}
-            contentFit="cover"
-          />
+          <View style={styles.logo}>
+            <MaterialCommunityIcons name="helicopter" size={26} color={colors.onSurfaceInverse} />
+          </View>
           <View style={styles.headerCenter}>
             <Text style={styles.headerTitle} testID="screen-title">
               AW139 POWER ASSURANCE CHECK
@@ -458,8 +455,11 @@ const styles = StyleSheet.create({
   logo: {
     width: 46,
     height: 46,
-    borderRadius: 13,
-    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    backgroundColor: colors.brand,
+    alignItems: "center",
+    justifyContent: "center",
+    ...glow,
   },
   headerTitles: { flex: 1 },
   headerTitle: {
