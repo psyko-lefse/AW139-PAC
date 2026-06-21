@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  ActivityIndicator,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,7 +13,8 @@ import * as Haptics from "expo-haptics";
 import { colors, spacing, radius, mono, font, shadow } from "@/src/theme";
 import { NumberField } from "@/src/components/NumberField";
 import { ChartTrace } from "@/src/components/ChartTrace";
-import { calculate, CalcResponse, EngineResult } from "@/src/api";
+import { CalcResponse, EngineResult } from "@/src/api";
+import { computeCheck, RANGE } from "@/src/calc";
 import { resetBus } from "@/src/resetBus";
 
 type EngineState = { itt: string; ng: string };
@@ -38,7 +38,6 @@ export default function CalculatorScreen() {
 
   const [result, setResult] = useState<CalcResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   const engineValid = (e: EngineState) =>
     num(e.itt) !== null && num(e.ng) !== null;
@@ -50,14 +49,34 @@ export default function CalculatorScreen() {
     return true;
   }, [oat, pa, tq, e1, e2]);
 
+  // Edge-of-chart warnings (inputs outside the digitised chart range)
+  const oatWarn = useMemo(() => {
+    const v = num(oat);
+    return v !== null && (v < RANGE.oat.min || v > RANGE.oat.max)
+      ? `Chart range ${RANGE.oat.min}…${RANGE.oat.max}°C`
+      : undefined;
+  }, [oat]);
+  const paWarn = useMemo(() => {
+    const v = num(pa);
+    return v !== null && (v < RANGE.pa.min || v > RANGE.pa.max)
+      ? `Chart range ${RANGE.pa.min}…${RANGE.pa.max} ft`
+      : undefined;
+  }, [pa]);
+  const tqWarn = useMemo(() => {
+    const v = num(tq);
+    return v !== null && (v < RANGE.tq.min || v > RANGE.tq.max)
+      ? `Chart range ${RANGE.tq.min}…${RANGE.tq.max}%`
+      : undefined;
+  }, [tq]);
+  const edgeWarn = !!(oatWarn || paWarn || tqWarn);
+
   const lastVerdict = useRef<boolean | null>(null);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const run = useCallback(async () => {
-    setLoading(true);
+  const run = useCallback(() => {
     setError(null);
     try {
-      const res = await calculate({
+      const res = computeCheck({
         oat: num(oat)!,
         pressure_altitude: num(pa)!,
         engine1: { torque: num(tq)!, itt: num(e1.itt)!, ng: num(e1.ng)! },
@@ -72,11 +91,9 @@ export default function CalculatorScreen() {
         ).catch(() => {});
         lastVerdict.current = res.overall_pass;
       }
-    } catch (err: any) {
-      setError(err?.message ?? "Calculation failed");
+    } catch {
+      setError("Calculation error — check your inputs");
       setResult(null);
-    } finally {
-      setLoading(false);
     }
   }, [oat, pa, tq, e1, e2]);
 
@@ -88,7 +105,7 @@ export default function CalculatorScreen() {
       lastVerdict.current = null;
       return;
     }
-    debounce.current = setTimeout(run, 350);
+    debounce.current = setTimeout(run, 150);
     return () => {
       if (debounce.current) clearTimeout(debounce.current);
     };
@@ -149,6 +166,7 @@ export default function CalculatorScreen() {
               unit="°C"
               value={oat}
               onChangeText={setOat}
+              warning={oatWarn}
             />
             <NumberField
               testID="input-pa"
@@ -156,6 +174,7 @@ export default function CalculatorScreen() {
               unit="ft"
               value={pa}
               onChangeText={setPa}
+              warning={paWarn}
             />
           </View>
           <View style={{ height: spacing.md }} />
@@ -165,6 +184,7 @@ export default function CalculatorScreen() {
             unit="%"
             value={tq}
             onChangeText={setTq}
+            warning={tqWarn}
           />
         </View>
 
@@ -211,10 +231,7 @@ export default function CalculatorScreen() {
         </View>
 
         {/* Results */}
-        <View style={styles.resultsHeaderRow}>
-          <Text style={styles.sectionLabel}>RESULTS</Text>
-          {loading && <ActivityIndicator size="small" color={colors.brand} />}
-        </View>
+        <Text style={styles.sectionLabel}>RESULTS</Text>
 
         {error && (
           <View style={[styles.verdict, styles.verdictFail]} testID="error-banner">
@@ -239,6 +256,15 @@ export default function CalculatorScreen() {
         {result && !error && (
           <View testID="results-section">
             <VerdictBanner pass={result.overall_pass} />
+            {edgeWarn && (
+              <View style={styles.edgeNote} testID="edge-warning">
+                <Ionicons name="warning-outline" size={16} color={colors.warning} />
+                <Text style={styles.edgeTxt}>
+                  Inputs outside the digitised chart range — values extrapolated. Verify
+                  manually against the chart.
+                </Text>
+              </View>
+            )}
             <EngineResultCard title="Engine 1" r={result.engine1} testID="result-engine1" />
             {result.engine2 && (
               <EngineResultCard title="Engine 2" r={result.engine2} testID="result-engine2" />
@@ -296,10 +322,23 @@ function EngineResultCard({
   const statusLabel =
     status === "pass" ? "PASS" : status === "caution" ? "CAUTION" : "FAIL";
 
+  const ittClose = r.max_itt > 0 ? r.itt / r.max_itt : 0;
+  const ngClose = r.max_ng > 0 ? r.ng / r.max_ng : 0;
+  const limiting = ittClose >= ngClose ? "ITT" : "NG";
+  const limMargin = limiting === "ITT" ? r.itt_margin : r.ng_margin;
+  const limUnit = limiting === "ITT" ? "°C" : "%";
+
   return (
     <View style={[styles.card, styles.resultCard]} testID={testID}>
       <View style={styles.resultHead}>
-        <Text style={styles.resultTitle}>{title}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.resultTitle}>{title}</Text>
+          <Text style={styles.limiting} testID={`${testID}-limiting`}>
+            Limited by {limiting} · {limMargin >= 0 ? "+" : ""}
+            {limMargin}
+            {limUnit} margin
+          </Text>
+        </View>
         <View style={[styles.badge, { backgroundColor: statusBg, borderColor: statusColor }]}>
           <Text style={[styles.badgeTxt, { color: statusColor }]} testID={`${testID}-status`}>
             {statusLabel}
@@ -309,21 +348,22 @@ function EngineResultCard({
 
       <MetricRow
         label="ITT"
-        measured={`${r.itt}`}
+        measured={r.itt}
         unit="°C"
-        max={`${r.max_itt}`}
+        max={r.max_itt}
         margin={r.itt_margin}
         pass={r.itt_pass}
+        cautionBand={10}
         testID={`${testID}-itt`}
       />
-      <View style={styles.rowDivider} />
       <MetricRow
         label="NG"
-        measured={`${r.ng}`}
+        measured={r.ng}
         unit="%"
-        max={`${r.max_ng}`}
+        max={r.max_ng}
         margin={r.ng_margin}
         pass={r.ng_pass}
+        cautionBand={0.5}
         testID={`${testID}-ng`}
       />
 
@@ -348,40 +388,51 @@ function MetricRow({
   max,
   margin,
   pass,
+  cautionBand,
   testID,
 }: {
   label: string;
-  measured: string;
+  measured: number;
   unit: string;
-  max: string;
+  max: number;
   margin: number;
   pass: boolean;
+  cautionBand: number;
   testID: string;
 }) {
-  const marginColor = pass ? colors.success : colors.error;
+  const color = !pass
+    ? colors.error
+    : margin <= cautionBand
+    ? colors.warning
+    : colors.success;
   const sign = margin >= 0 ? "+" : "";
+  const ratio = max > 0 ? Math.max(0, Math.min(1, measured / max)) : 0;
+
   return (
     <View style={styles.metricRow} testID={testID}>
-      <View style={styles.metricLeft}>
+      <View style={styles.metricTop}>
         <Text style={styles.metricLabel}>{label}</Text>
-        <Text style={styles.metricSub}>
-          Measured <Text style={styles.metricSubVal}>{measured}{unit}</Text>
-        </Text>
-      </View>
-      <View style={styles.metricMid}>
-        <Text style={styles.metricMaxLabel}>MAX ALLOW.</Text>
-        <Text style={styles.metricMax}>
-          {max}
-          <Text style={styles.metricUnit}>{unit}</Text>
-        </Text>
-      </View>
-      <View style={styles.metricRight}>
-        <Text style={styles.metricMaxLabel}>MARGIN</Text>
-        <Text style={[styles.metricMargin, { color: marginColor }]} testID={`${testID}-margin`}>
+        <Text style={[styles.metricMargin, { color }]} testID={`${testID}-margin`}>
           {sign}
           {margin}
+          {unit}
         </Text>
       </View>
+      <View style={styles.gaugeTrack}>
+        <View style={[styles.gaugeFill, { width: `${ratio * 100}%`, backgroundColor: color }]} />
+      </View>
+      <Text style={styles.metricSub}>
+        Measured{" "}
+        <Text style={styles.metricSubVal}>
+          {measured}
+          {unit}
+        </Text>{" "}
+        · Max allowable{" "}
+        <Text style={styles.metricSubVal}>
+          {max}
+          {unit}
+        </Text>
+      </Text>
     </View>
   );
 }
@@ -497,6 +548,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   resultTitle: { fontSize: font.lg, fontWeight: "700", color: colors.onSurface },
+  limiting: { fontSize: font.sm, color: colors.onSurfaceSecondary, marginTop: 2 },
   badge: {
     paddingHorizontal: spacing.md,
     paddingVertical: 4,
@@ -505,31 +557,37 @@ const styles = StyleSheet.create({
   },
   badgeTxt: { fontSize: font.sm, fontWeight: "800", letterSpacing: 0.5 },
   metricRow: {
+    paddingVertical: spacing.md,
+  },
+  metricTop: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: spacing.sm,
+    justifyContent: "space-between",
+    marginBottom: spacing.sm,
   },
-  metricLeft: { flex: 1.3 },
-  metricMid: { flex: 1, alignItems: "flex-end" },
-  metricRight: { flex: 0.9, alignItems: "flex-end" },
   metricLabel: { fontSize: font.lg, fontWeight: "800", color: colors.onSurface },
-  metricSub: { fontSize: font.sm, color: colors.muted, marginTop: 2 },
+  metricMargin: { fontFamily: mono, fontSize: font.lg, fontWeight: "700" },
+  gaugeTrack: {
+    height: 8,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceSecondary,
+    overflow: "hidden",
+  },
+  gaugeFill: { height: "100%", borderRadius: radius.pill },
+  metricSub: { fontSize: font.sm, color: colors.muted, marginTop: spacing.sm },
   metricSubVal: { fontFamily: mono, color: colors.onSurfaceSecondary },
-  metricMaxLabel: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: colors.borderStrong,
-    letterSpacing: 0.5,
+  edgeNote: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    alignItems: "flex-start",
+    backgroundColor: colors.warningSurface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.warning,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
   },
-  metricMax: {
-    fontFamily: mono,
-    fontSize: font.xl,
-    color: colors.onSurface,
-    marginTop: 2,
-  },
-  metricUnit: { fontSize: font.sm, color: colors.muted },
-  metricMargin: { fontFamily: mono, fontSize: font.xl, fontWeight: "700", marginTop: 2 },
-  rowDivider: { height: 1, backgroundColor: colors.divider },
+  edgeTxt: { flex: 1, fontSize: font.sm, color: "#7A4A00", lineHeight: 18 },
   notes: {
     marginTop: spacing.md,
     backgroundColor: colors.errorSurface,

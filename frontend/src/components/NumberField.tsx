@@ -10,6 +10,7 @@ type Props = {
   onChangeText: (t: string) => void;
   placeholder?: string;
   testID?: string;
+  warning?: string;
 } & Pick<TextInputProps, "keyboardType">;
 
 export function NumberField({
@@ -18,6 +19,7 @@ export function NumberField({
   onChangeText,
   placeholder,
   testID,
+  warning,
   keyboardType = "numbers-and-punctuation",
 }: Props) {
   const [focused, setFocused] = useState(false);
@@ -29,6 +31,7 @@ export function NumberField({
           styles.inputRow,
           focused && styles.inputRowFocused,
           !!value && !focused && styles.inputRowFilled,
+          !!warning && styles.inputRowWarn,
         ]}
       >
         <TextInput
@@ -45,6 +48,11 @@ export function NumberField({
           selectionColor={colors.brand}
         />
       </View>
+      {!!warning && (
+        <Text style={styles.warn} testID={testID ? `${testID}-warn` : undefined}>
+          {warning}
+        </Text>
+      )}
     </View>
   );
 }
@@ -77,11 +85,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderColor: colors.brand,
   },
+  inputRowWarn: {
+    borderColor: colors.warning,
+  },
   input: {
     flex: 1,
     fontFamily: mono,
     fontSize: font.xl,
     color: colors.onSurface,
     padding: 0,
+  },
+  warn: {
+    fontSize: 11,
+    color: colors.warning,
+    marginTop: 4,
+    fontWeight: "600",
   },
 });
