@@ -12,7 +12,6 @@ import * as Haptics from "expo-haptics";
 import { colors, spacing, radius, mono, font, shadow, glow } from "@/src/theme";
 import { NumberField } from "@/src/components/NumberField";
 import { ChartTrace } from "@/src/components/ChartTrace";
-import { AW139Logo } from "@/src/components/AW139Logo";
 import { CalcResponse, EngineResult } from "@/src/api";
 import { computeCheck, RANGE } from "@/src/calc";
 import { resetBus } from "@/src/resetBus";
@@ -130,16 +129,12 @@ export default function CalculatorScreen() {
       {/* Sticky header */}
       <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
         <View style={styles.headerRow}>
-          <View style={styles.logo}>
-            <AW139Logo size={30} color={colors.onSurfaceInverse} />
-          </View>
           <View style={styles.headerCenter}>
             <Text style={styles.headerTitle} testID="screen-title">
               AW139 POWER ASSURANCE CHECK
             </Text>
             <Text style={styles.headerSub}>HOVER · NR 102% · BASIC INLET</Text>
           </View>
-          <View style={styles.headerSpacer} />
         </View>
       </View>
 
