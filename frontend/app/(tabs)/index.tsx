@@ -130,19 +130,18 @@ export default function CalculatorScreen() {
       {/* Sticky header */}
       <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
         <View style={styles.headerRow}>
-          <View style={styles.headerLeft}>
-            <Image
-              source={require("../../assets/images/app-logo.png")}
-              style={styles.logo}
-              contentFit="cover"
-            />
-            <View style={styles.headerTitles}>
-              <Text style={styles.headerTitle} testID="screen-title">
-                AW139 POWER ASSURANCE
-              </Text>
-              <Text style={styles.headerSub}>HOVER · NR 102% · BASIC INLET</Text>
-            </View>
+          <Image
+            source={require("../../assets/images/app-logo.png")}
+            style={styles.logo}
+            contentFit="cover"
+          />
+          <View style={styles.headerCenter}>
+            <Text style={styles.headerTitle} testID="screen-title">
+              AW139 POWER ASSURANCE CHECK
+            </Text>
+            <Text style={styles.headerSub}>HOVER · NR 102% · BASIC INLET</Text>
           </View>
+          <View style={styles.headerSpacer} />
         </View>
       </View>
 
@@ -452,6 +451,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   headerLeft: { flexDirection: "row", alignItems: "center", gap: spacing.md, flex: 1 },
+  headerCenter: { flex: 1, alignItems: "center", paddingHorizontal: spacing.sm },
+  headerSpacer: { width: 46 },
   logo: {
     width: 46,
     height: 46,
@@ -464,6 +465,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: colors.onSurface,
     letterSpacing: 0.5,
+    textAlign: "center",
   },
   headerSub: {
     fontFamily: mono,
@@ -471,6 +473,7 @@ const styles = StyleSheet.create({
     color: colors.muted,
     marginTop: 3,
     letterSpacing: 1.2,
+    textAlign: "center",
   },
   scroll: { flex: 1 },
   sectionLabel: {
