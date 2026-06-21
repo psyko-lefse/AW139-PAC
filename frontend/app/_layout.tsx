@@ -5,6 +5,7 @@ import { LogBox } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 
 import { useIconFonts } from "@/src/hooks/use-icon-fonts";
@@ -39,6 +40,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <KeyboardProvider>
+          <StatusBar style="dark" />
           <Stack screenOptions={{ headerShown: false }} />
         </KeyboardProvider>
       </SafeAreaProvider>

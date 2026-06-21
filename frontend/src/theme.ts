@@ -1,33 +1,33 @@
 import { Platform } from "react-native";
 
-// Design tokens — dark cockpit / instrument theme with neon-green accent
-// (matches the "Jet A1" aviation calculator look).
+// Design tokens — "Clean Light Instrument": soft daylight surfaces, deep
+// aviation-blue primary, fresh lime-green pass accent. Sleek & modern.
 export const colors = {
-  surface: "#121821", // cards, header
-  onSurface: "#F2F5F8", // primary text
-  surfaceSecondary: "#0A0E14", // page background, inset inputs
-  onSurfaceSecondary: "#AEB8C4",
-  surfaceTertiary: "#1A2230",
-  onSurfaceTertiary: "#8A95A2",
-  surfaceInverse: "#34F58D",
-  onSurfaceInverse: "#06210F", // dark text/icon on green surfaces
-  brand: "#34F58D", // neon green accent
-  brandPrimary: "#2BE07E",
-  onBrandPrimary: "#06210F",
-  brandSoft: "rgba(52,245,141,0.10)",
-  success: "#34F58D",
-  successSurface: "rgba(52,245,141,0.12)",
-  onSuccess: "#06210F",
-  warning: "#FFB020",
-  warningSurface: "rgba(255,176,32,0.12)",
-  onWarning: "#1A1200",
-  error: "#FF5247",
-  errorSurface: "rgba(255,82,71,0.12)",
+  surface: "#FFFFFF", // cards, header
+  onSurface: "#0F172A", // primary text (slate-900)
+  surfaceSecondary: "#F1F5F9", // page background, inset inputs (slate-100)
+  onSurfaceSecondary: "#475569", // slate-600
+  surfaceTertiary: "#E2E8F0", // slate-200
+  onSurfaceTertiary: "#64748B", // slate-500
+  surfaceInverse: "#0F172A",
+  onSurfaceInverse: "#FFFFFF", // text/icon on colored (blue/green) fills
+  brand: "#1E4FD8", // deep aviation blue
+  brandPrimary: "#1A45BE",
+  onBrandPrimary: "#FFFFFF",
+  brandSoft: "rgba(30,79,216,0.08)",
+  success: "#15B66E", // fresh lime-green
+  successSurface: "#E7F8EF",
+  onSuccess: "#FFFFFF",
+  warning: "#D97706",
+  warningSurface: "#FEF3E2",
+  onWarning: "#FFFFFF",
+  error: "#DC2626",
+  errorSurface: "#FEF2F2",
   onError: "#FFFFFF",
-  border: "#222C38",
-  borderStrong: "#3A4552",
-  divider: "#1B232E",
-  muted: "#6B7682",
+  border: "#E5EAF1",
+  borderStrong: "#CBD5E1",
+  divider: "#EEF2F6",
+  muted: "#94A3B8",
 };
 
 export const spacing = {
@@ -41,9 +41,9 @@ export const spacing = {
 };
 
 export const radius = {
-  sm: 6,
-  md: 10,
-  lg: 16,
+  sm: 8,
+  md: 12,
+  lg: 18,
   pill: 999,
 };
 
@@ -62,20 +62,20 @@ export const font = {
   "3xl": 34,
 };
 
-// Neutral elevation (barely visible on dark) for plain cards.
+// Soft, modern elevation for light surfaces.
 export const shadow = {
-  shadowColor: "#000000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.3,
-  shadowRadius: 6,
+  shadowColor: "#1E293B",
+  shadowOffset: { width: 0, height: 6 },
+  shadowOpacity: 0.06,
+  shadowRadius: 16,
   elevation: 3,
 };
 
-// Neon-green glow for active / highlighted elements.
+// Subtle colored lift for primary/accent elements.
 export const glow = {
-  shadowColor: "#34F58D",
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.5,
-  shadowRadius: 14,
-  elevation: 10,
+  shadowColor: "#1E4FD8",
+  shadowOffset: { width: 0, height: 6 },
+  shadowOpacity: 0.28,
+  shadowRadius: 12,
+  elevation: 8,
 };

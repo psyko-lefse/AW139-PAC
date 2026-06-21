@@ -12,7 +12,7 @@ import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 
-import { colors, spacing, radius, mono, font, shadow, glow } from "@/src/theme";
+import { colors, spacing, radius, mono, font, shadow } from "@/src/theme";
 import { NumberField } from "@/src/components/NumberField";
 import { calculate, CalcResponse, EngineResult } from "@/src/api";
 import { resetBus } from "@/src/resetBus";
@@ -279,20 +279,25 @@ export default function CalculatorScreen() {
 }
 
 function VerdictBanner({ pass }: { pass: boolean }) {
-  const fg = pass ? colors.onSurfaceInverse : colors.onError;
+  const fg = pass ? colors.success : colors.error;
   return (
     <View
       style={[styles.verdict, pass ? styles.verdictPass : styles.verdictFail]}
       testID="overall-verdict"
     >
       <Ionicons
-        name={pass ? "checkmark-circle" : "close-circle"}
-        size={22}
+        name={pass ? "checkmark-circle" : "alert-circle"}
+        size={24}
         color={fg}
       />
-      <Text style={[styles.verdictTxt, { color: fg }]}>
-        {pass ? "POWER ASSURED" : "POWER NOT ASSURED"}
-      </Text>
+      <View style={{ flex: 1 }}>
+        <Text style={[styles.verdictTxt, { color: fg }]}>
+          {pass ? "POWER ASSURED" : "POWER NOT ASSURED"}
+        </Text>
+        <Text style={styles.verdictSub}>
+          {pass ? "All checks within limits" : "One or more limits exceeded"}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -493,19 +498,23 @@ const styles = StyleSheet.create({
   verdict: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: spacing.md,
     borderRadius: radius.lg,
     padding: spacing.lg,
     marginBottom: spacing.lg,
+    borderWidth: 1,
   },
-  verdictPass: { backgroundColor: colors.success, ...glow },
-  verdictFail: { backgroundColor: colors.error },
+  verdictPass: { backgroundColor: colors.successSurface, borderColor: colors.success },
+  verdictFail: { backgroundColor: colors.errorSurface, borderColor: colors.error },
   verdictTxt: {
-    flex: 1,
-    color: colors.onSurfaceInverse,
     fontSize: font.lg,
     fontWeight: "800",
     letterSpacing: 0.5,
+  },
+  verdictSub: {
+    fontSize: font.sm,
+    color: colors.onSurfaceSecondary,
+    marginTop: 1,
   },
   resultCard: { paddingVertical: spacing.md },
   resultHead: {
@@ -556,5 +565,5 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   noteRow: { flexDirection: "row", gap: spacing.xs, alignItems: "flex-start" },
-  noteTxt: { flex: 1, fontSize: font.sm, color: "#FF9B93", lineHeight: 17 },
+  noteTxt: { flex: 1, fontSize: font.sm, color: "#B42318", lineHeight: 17 },
 });
