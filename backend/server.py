@@ -34,6 +34,11 @@ LIMIT_ITT = 775.0   # deg C
 LIMIT_NG = 102.4    # %
 LIMIT_TQ = 105.0    # %
 
+# Chart image geometry (pixels) for the overlay trace on chart_clean.png
+IMG_W = 2550.0
+IMG_H = 1147.0
+TOP_Y = 143.0       # top axis row (where TQ/ITT/NG are read)
+
 
 def x2v(c, x):
     return c['v0'] + (x - c['x0']) * (c['v1'] - c['v0']) / (c['x1'] - c['x0'])
@@ -99,6 +104,23 @@ def lookup_max_limits(tq: float, pa: float, oat: float):
     return round(max_itt, 1), round(max_ng, 1)
 
 
+def compute_trace(tq: float, pa: float, oat: float):
+    """Normalised (0..1) overlay coordinates for the lookup trace on the chart."""
+    xtq = v2x(CAL['tq'], tq)
+    pa_pairs = [(c['pa'], _interp_y_at_x(c['pts'], xtq)) for c in MODEL['left']]
+    carry_y = _lin_interp_pairs(pa_pairs, pa)
+    max_itt, max_ng = lookup_max_limits(tq, pa, oat)
+    itt_x = v2x(CAL['itt'], max_itt)
+    ng_x = v2x(CAL['ng'], max_ng)
+    return {
+        "top_y": TOP_Y / IMG_H,
+        "carry_y": carry_y / IMG_H,
+        "tq_x": xtq / IMG_W,
+        "itt_x": itt_x / IMG_W,
+        "ng_x": ng_x / IMG_W,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Schemas
 # ---------------------------------------------------------------------------
@@ -137,6 +159,7 @@ class CalcResponse(BaseModel):
     engine1: EngineResult
     engine2: Optional[EngineResult] = None
     overall_pass: bool
+    trace: Optional[dict] = None
 
 
 CAUTION_ITT = 10.0   # deg C caution band below the allowable limit
@@ -195,9 +218,10 @@ async def calculate(req: CalcRequest):
     r1 = evaluate_engine(req.oat, req.pressure_altitude, req.engine1)
     r2 = evaluate_engine(req.oat, req.pressure_altitude, req.engine2) if req.engine2 else None
     overall = r1.passed and (r2.passed if r2 else True)
+    trace = compute_trace(req.engine1.torque, req.pressure_altitude, req.oat)
     return CalcResponse(
         oat=req.oat, pressure_altitude=req.pressure_altitude,
-        engine1=r1, engine2=r2, overall_pass=overall,
+        engine1=r1, engine2=r2, overall_pass=overall, trace=trace,
     )
 
 

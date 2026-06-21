@@ -24,6 +24,15 @@ export type CalcResponse = {
   engine1: EngineResult;
   engine2?: EngineResult | null;
   overall_pass: boolean;
+  trace?: ChartTrace | null;
+};
+
+export type ChartTrace = {
+  top_y: number;
+  carry_y: number;
+  tq_x: number;
+  itt_x: number;
+  ng_x: number;
 };
 
 export type CalcRequest = {

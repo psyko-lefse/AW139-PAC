@@ -13,6 +13,7 @@ import * as Haptics from "expo-haptics";
 
 import { colors, spacing, radius, mono, font, shadow } from "@/src/theme";
 import { NumberField } from "@/src/components/NumberField";
+import { ChartTrace } from "@/src/components/ChartTrace";
 import { calculate, CalcResponse, EngineResult } from "@/src/api";
 import { resetBus } from "@/src/resetBus";
 
@@ -242,6 +243,7 @@ export default function CalculatorScreen() {
             {result.engine2 && (
               <EngineResultCard title="Engine 2" r={result.engine2} testID="result-engine2" />
             )}
+            {result.trace && <ChartTrace trace={result.trace} />}
           </View>
         )}
       </KeyboardAwareScrollView>
