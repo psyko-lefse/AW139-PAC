@@ -160,7 +160,7 @@ export default function CalculatorScreen() {
           <View style={{ height: spacing.md }} />
           <NumberField
             testID="input-tq"
-            label="Torque (both engines)"
+            label="Torque"
             unit="%"
             value={tq}
             onChangeText={setTq}
