@@ -6,12 +6,13 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 
 import { colors, spacing, radius, mono, font, shadow, glow } from "@/src/theme";
 import { NumberField } from "@/src/components/NumberField";
 import { ChartTrace } from "@/src/components/ChartTrace";
+import { AW139Logo } from "@/src/components/AW139Logo";
 import { CalcResponse, EngineResult } from "@/src/api";
 import { computeCheck, RANGE } from "@/src/calc";
 import { resetBus } from "@/src/resetBus";
@@ -130,7 +131,7 @@ export default function CalculatorScreen() {
       <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
         <View style={styles.headerRow}>
           <View style={styles.logo}>
-            <MaterialCommunityIcons name="helicopter" size={26} color={colors.onSurfaceInverse} />
+            <AW139Logo size={30} color={colors.onSurfaceInverse} />
           </View>
           <View style={styles.headerCenter}>
             <Text style={styles.headerTitle} testID="screen-title">
