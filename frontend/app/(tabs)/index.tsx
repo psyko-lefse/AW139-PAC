@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Switch,
   ActivityIndicator,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -17,8 +16,8 @@ import { NumberField } from "@/src/components/NumberField";
 import { calculate, CalcResponse, EngineResult } from "@/src/api";
 import { resetBus } from "@/src/resetBus";
 
-type EngineState = { tq: string; itt: string; ng: string };
-const emptyEngine: EngineState = { tq: "", itt: "", ng: "" };
+type EngineState = { itt: string; ng: string };
+const emptyEngine: EngineState = { itt: "", ng: "" };
 
 const num = (s: string): number | null => {
   const t = s.trim().replace(",", ".");
@@ -32,7 +31,7 @@ export default function CalculatorScreen() {
 
   const [oat, setOat] = useState("");
   const [pa, setPa] = useState("");
-  const [twinEngine, setTwinEngine] = useState(true);
+  const [tq, setTq] = useState("");
   const [e1, setE1] = useState<EngineState>(emptyEngine);
   const [e2, setE2] = useState<EngineState>(emptyEngine);
 
@@ -41,14 +40,14 @@ export default function CalculatorScreen() {
   const [loading, setLoading] = useState(false);
 
   const engineValid = (e: EngineState) =>
-    num(e.tq) !== null && num(e.itt) !== null && num(e.ng) !== null;
+    num(e.itt) !== null && num(e.ng) !== null;
 
   const ready = useMemo(() => {
-    if (num(oat) === null || num(pa) === null) return false;
+    if (num(oat) === null || num(pa) === null || num(tq) === null) return false;
     if (!engineValid(e1)) return false;
-    if (twinEngine && !engineValid(e2)) return false;
+    if (!engineValid(e2)) return false;
     return true;
-  }, [oat, pa, e1, e2, twinEngine]);
+  }, [oat, pa, tq, e1, e2]);
 
   const lastVerdict = useRef<boolean | null>(null);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -60,10 +59,8 @@ export default function CalculatorScreen() {
       const res = await calculate({
         oat: num(oat)!,
         pressure_altitude: num(pa)!,
-        engine1: { torque: num(e1.tq)!, itt: num(e1.itt)!, ng: num(e1.ng)! },
-        engine2: twinEngine
-          ? { torque: num(e2.tq)!, itt: num(e2.itt)!, ng: num(e2.ng)! }
-          : null,
+        engine1: { torque: num(tq)!, itt: num(e1.itt)!, ng: num(e1.ng)! },
+        engine2: { torque: num(tq)!, itt: num(e2.itt)!, ng: num(e2.ng)! },
       });
       setResult(res);
       if (lastVerdict.current !== res.overall_pass) {
@@ -80,7 +77,7 @@ export default function CalculatorScreen() {
     } finally {
       setLoading(false);
     }
-  }, [oat, pa, e1, e2, twinEngine]);
+  }, [oat, pa, tq, e1, e2]);
 
   useEffect(() => {
     if (debounce.current) clearTimeout(debounce.current);
@@ -100,6 +97,7 @@ export default function CalculatorScreen() {
     Haptics.selectionAsync().catch(() => {});
     setOat("");
     setPa("");
+    setTq("");
     setE1(emptyEngine);
     setE2(emptyEngine);
     setResult(null);
@@ -159,34 +157,19 @@ export default function CalculatorScreen() {
               onChangeText={setPa}
             />
           </View>
-        </View>
-
-        {/* Twin engine toggle */}
-        <View style={styles.toggleRow}>
-          <Text style={styles.toggleLabel}>Check both engines</Text>
-          <Switch
-            testID="twin-engine-switch"
-            value={twinEngine}
-            onValueChange={(v) => {
-              Haptics.selectionAsync().catch(() => {});
-              setTwinEngine(v);
-            }}
-            trackColor={{ false: colors.surfaceTertiary, true: colors.brand }}
-            thumbColor={colors.surface}
+          <View style={{ height: spacing.md }} />
+          <NumberField
+            testID="input-tq"
+            label="Torque (both engines)"
+            unit="%"
+            value={tq}
+            onChangeText={setTq}
           />
         </View>
 
         {/* Engine 1 */}
         <Text style={styles.sectionLabel}>ENGINE 1</Text>
         <View style={styles.card}>
-          <NumberField
-            testID="input-e1-tq"
-            label="Torque"
-            unit="%"
-            value={e1.tq}
-            onChangeText={(t) => setE1((s) => ({ ...s, tq: t }))}
-          />
-          <View style={{ height: spacing.md }} />
           <View style={styles.fieldRow}>
             <NumberField
               testID="input-e1-itt"
@@ -206,37 +189,25 @@ export default function CalculatorScreen() {
         </View>
 
         {/* Engine 2 */}
-        {twinEngine && (
-          <>
-            <Text style={styles.sectionLabel}>ENGINE 2</Text>
-            <View style={styles.card}>
-              <NumberField
-                testID="input-e2-tq"
-                label="Torque"
-                unit="%"
-                value={e2.tq}
-                onChangeText={(t) => setE2((s) => ({ ...s, tq: t }))}
-              />
-              <View style={{ height: spacing.md }} />
-              <View style={styles.fieldRow}>
-                <NumberField
-                  testID="input-e2-itt"
-                  label="ITT"
-                  unit="°C"
-                  value={e2.itt}
-                  onChangeText={(t) => setE2((s) => ({ ...s, itt: t }))}
-                />
-                <NumberField
-                  testID="input-e2-ng"
-                  label="NG"
-                  unit="%"
-                  value={e2.ng}
-                  onChangeText={(t) => setE2((s) => ({ ...s, ng: t }))}
-                />
-              </View>
-            </View>
-          </>
-        )}
+        <Text style={styles.sectionLabel}>ENGINE 2</Text>
+        <View style={styles.card}>
+          <View style={styles.fieldRow}>
+            <NumberField
+              testID="input-e2-itt"
+              label="ITT"
+              unit="°C"
+              value={e2.itt}
+              onChangeText={(t) => setE2((s) => ({ ...s, itt: t }))}
+            />
+            <NumberField
+              testID="input-e2-ng"
+              label="NG"
+              unit="%"
+              value={e2.ng}
+              onChangeText={(t) => setE2((s) => ({ ...s, ng: t }))}
+            />
+          </View>
+        </View>
 
         {/* Results */}
         <View style={styles.resultsHeaderRow}>
