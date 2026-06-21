@@ -10,12 +10,19 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
+import { GestureHandlerRootView, Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 import { colors, spacing, radius, font } from "@/src/theme";
 import { ChartTrace as TraceData } from "@/src/api";
 
 const CHART = require("../../assets/images/chart_clean.png");
 const ASPECT = 2550 / 1147;
+const LINE = "#E5322D"; // red trace
 
 const clamp = (v: number) => Math.max(0, Math.min(1, v));
 const pct = (v: number): DimensionValue => `${clamp(v) * 100}%`;
@@ -27,10 +34,6 @@ function TraceOverlay({ t }: { t: TraceData }) {
   const ittx = clamp(t.itt_x);
   const ngx = clamp(t.ng_x);
   const h = (cy - top) * 100;
-
-  const Dot = ({ x, y }: { x: number; y: number }) => (
-    <View style={[styles.dot, { left: pct(x), top: pct(y) }]} />
-  );
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
@@ -45,73 +48,103 @@ function TraceOverlay({ t }: { t: TraceData }) {
       <View style={[styles.vline, { left: pct(tqx), top: pct(top), height: `${h}%` }]} />
       <View style={[styles.vline, { left: pct(ittx), top: pct(top), height: `${h}%` }]} />
       <View style={[styles.vline, { left: pct(ngx), top: pct(top), height: `${h}%` }]} />
-      {/* nodes */}
-      <Dot x={tqx} y={cy} />
-      <Dot x={ittx} y={cy} />
-      <Dot x={ngx} y={cy} />
-      <Dot x={ittx} y={top} />
-      <Dot x={ngx} y={top} />
     </View>
+  );
+}
+
+function ZoomableChart({ trace }: { trace: TraceData }) {
+  const { width } = useWindowDimensions();
+  const w = width;
+  const hgt = w / ASPECT;
+
+  const scale = useSharedValue(1);
+  const saved = useSharedValue(1);
+  const tx = useSharedValue(0);
+  const ty = useSharedValue(0);
+  const stx = useSharedValue(0);
+  const sty = useSharedValue(0);
+
+  const pinch = Gesture.Pinch()
+    .onUpdate((e) => {
+      scale.value = Math.max(1, Math.min(saved.value * e.scale, 6));
+    })
+    .onEnd(() => {
+      saved.value = scale.value;
+      if (scale.value <= 1.01) {
+        scale.value = withTiming(1);
+        tx.value = withTiming(0);
+        ty.value = withTiming(0);
+        stx.value = 0;
+        sty.value = 0;
+      }
+    });
+
+  const pan = Gesture.Pan()
+    .onUpdate((e) => {
+      tx.value = stx.value + e.translationX;
+      ty.value = sty.value + e.translationY;
+    })
+    .onEnd(() => {
+      stx.value = tx.value;
+      sty.value = ty.value;
+    });
+
+  const composed = Gesture.Simultaneous(pinch, pan);
+
+  const aStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: tx.value },
+      { translateY: ty.value },
+      { scale: scale.value },
+    ],
+  }));
+
+  return (
+    <GestureDetector gesture={composed}>
+      <Animated.View style={[{ width: w, height: hgt }, aStyle]}>
+        <Image source={CHART} style={StyleSheet.absoluteFill} contentFit="fill" />
+        <TraceOverlay t={trace} />
+      </Animated.View>
+    </GestureDetector>
   );
 }
 
 export function ChartTrace({ trace }: { trace: TraceData }) {
   const [open, setOpen] = useState(false);
-  const { width, height } = useWindowDimensions();
-
-  // Rotated landscape view inside the modal to use the full screen height.
-  const rW = height * 0.82;
-  const rH = rW / ASPECT;
 
   return (
     <>
       <Text style={styles.sectionLabel}>CHART TRACE</Text>
-      <Pressable
-        style={styles.card}
-        onPress={() => setOpen(true)}
-        testID="chart-trace"
-      >
+      <Pressable style={styles.card} onPress={() => setOpen(true)} testID="chart-trace">
         <View style={styles.chartBox}>
           <Image source={CHART} style={StyleSheet.absoluteFill} contentFit="fill" />
           <TraceOverlay t={trace} />
         </View>
         <View style={styles.hintRow}>
           <Ionicons name="scan-outline" size={14} color={colors.muted} />
-          <Text style={styles.hint}>Tap to enlarge · blue line shows your lookup</Text>
+          <Text style={styles.hint}>Tap to enlarge · red line shows your lookup</Text>
         </View>
       </Pressable>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
-        <View style={styles.modalRoot}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
-          <View
-            style={{
-              width: rW,
-              height: rH,
-              transform: [{ rotate: "90deg" }],
-            }}
-          >
-            <Image source={CHART} style={StyleSheet.absoluteFill} contentFit="fill" />
-            <TraceOverlay t={trace} />
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <View style={styles.modalRoot}>
+            <ZoomableChart trace={trace} />
+            <Pressable
+              style={styles.closeBtn}
+              onPress={() => setOpen(false)}
+              testID="chart-close"
+              hitSlop={10}
+            >
+              <Ionicons name="close" size={22} color={colors.onSurface} />
+            </Pressable>
+            <Text style={styles.modalHint}>Pinch to zoom · drag to pan</Text>
           </View>
-          <Pressable
-            style={[styles.closeBtn, { top: spacing.xl + 8 }]}
-            onPress={() => setOpen(false)}
-            testID="chart-close"
-            hitSlop={10}
-          >
-            <Ionicons name="close" size={22} color={colors.onSurface} />
-          </Pressable>
-          <Text style={[styles.modalHint, { bottom: spacing.xl }]}>
-            Rotate your view · tap anywhere to close
-          </Text>
-        </View>
+        </GestureHandlerRootView>
       </Modal>
     </>
   );
 }
-
-const LINE = colors.brand;
 
 const styles = StyleSheet.create({
   sectionLabel: {
@@ -147,25 +180,16 @@ const styles = StyleSheet.create({
   hint: { fontSize: font.sm, color: colors.muted },
   vline: { position: "absolute", width: 2, marginLeft: -1, backgroundColor: LINE },
   hline: { position: "absolute", height: 2, marginTop: -1, backgroundColor: LINE },
-  dot: {
-    position: "absolute",
-    width: 9,
-    height: 9,
-    borderRadius: 5,
-    marginLeft: -4.5,
-    marginTop: -4.5,
-    backgroundColor: LINE,
-    borderWidth: 1.5,
-    borderColor: "#FFFFFF",
-  },
   modalRoot: {
     flex: 1,
-    backgroundColor: "rgba(8,12,20,0.92)",
+    backgroundColor: "rgba(8,12,20,0.94)",
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden",
   },
   closeBtn: {
     position: "absolute",
+    top: spacing["2xl"] + 8,
     right: spacing.lg,
     width: 40,
     height: 40,
@@ -176,6 +200,7 @@ const styles = StyleSheet.create({
   },
   modalHint: {
     position: "absolute",
+    bottom: spacing.xl,
     color: "rgba(255,255,255,0.7)",
     fontSize: font.sm,
   },
