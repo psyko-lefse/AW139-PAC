@@ -271,6 +271,8 @@ export default function CalculatorScreen() {
             {result.trace && <ChartTrace trace={result.trace} />}
           </View>
         )}
+
+        <Text style={styles.copyright} testID="copyright">©Butterhill 2026</Text>
       </KeyboardAwareScrollView>
     </View>
   );
@@ -591,6 +593,12 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   edgeTxt: { flex: 1, fontSize: font.sm, color: "#7A4A00", lineHeight: 18 },
+  copyright: {
+    textAlign: "center",
+    fontSize: 11,
+    color: colors.muted,
+    marginTop: spacing.lg,
+  },
   notes: {
     marginTop: spacing.md,
     backgroundColor: colors.errorSurface,

@@ -98,6 +98,8 @@ export default function ProcedureScreen() {
             approved). Calculator values are digitised approximations — verify against
             the official chart before operational use.
           </Text>
+
+          <Text style={styles.copyright} testID="copyright-procedure">©Butterhill 2026</Text>
         </View>
       </ScrollView>
     </View>
@@ -166,6 +168,12 @@ const styles = StyleSheet.create({
   source: {
     fontSize: font.sm,
     lineHeight: 18,
+    color: colors.muted,
+    marginTop: spacing.xl,
+  },
+  copyright: {
+    textAlign: "center",
+    fontSize: 11,
     color: colors.muted,
     marginTop: spacing.xl,
   },
