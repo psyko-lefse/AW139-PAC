@@ -16,6 +16,7 @@ export type EngineResult = {
   near_limit: boolean;
   op_limit_exceeded: boolean;
   notes: string[];
+  trace?: ChartTrace | null;
 };
 
 export type CalcResponse = {

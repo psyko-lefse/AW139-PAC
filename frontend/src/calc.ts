@@ -168,6 +168,7 @@ function evaluateEngine(oat: number, pa: number, e: EngineInput): EngineResult {
     near_limit: nearLimit,
     op_limit_exceeded: opExceeded,
     notes,
+    trace: computeTrace(e.torque, pa, oat),
   };
 }
 
