@@ -109,12 +109,14 @@ function ZoomableChart({ trace }: { trace: TraceData }) {
   );
 }
 
-export function ChartTrace({ trace }: { trace: TraceData }) {
+export function ChartTrace({ trace, label }: { trace: TraceData; label?: string }) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <Text style={styles.sectionLabel}>CHART TRACE</Text>
+      <Text style={styles.sectionLabel}>
+        {label ? `${label} — CHART TRACE` : "CHART TRACE"}
+      </Text>
       <Pressable style={styles.card} onPress={() => setOpen(true)} testID="chart-trace">
         <View style={styles.chartBox}>
           <Image source={CHART} style={StyleSheet.absoluteFill} contentFit="fill" />

@@ -270,7 +270,12 @@ export default function CalculatorScreen() {
             {result.engine2 && (
               <EngineResultCard title="Engine 2" r={result.engine2} testID="result-engine2" />
             )}
-            {result.trace && <ChartTrace trace={result.trace} />}
+            {result.engine1.trace && (
+              <ChartTrace trace={result.engine1.trace} label="ENGINE 1" />
+            )}
+            {result.engine2?.trace && (
+              <ChartTrace trace={result.engine2.trace} label="ENGINE 2" />
+            )}
           </View>
         )}
 
