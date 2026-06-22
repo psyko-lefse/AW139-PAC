@@ -16,8 +16,8 @@ import { CalcResponse, EngineResult } from "@/src/api";
 import { computeCheck, RANGE } from "@/src/calc";
 import { resetBus } from "@/src/resetBus";
 
-type EngineState = { itt: string; ng: string };
-const emptyEngine: EngineState = { itt: "", ng: "" };
+type EngineState = { tq: string; itt: string; ng: string };
+const emptyEngine: EngineState = { tq: "", itt: "", ng: "" };
 
 const num = (s: string): number | null => {
   const t = s.trim().replace(",", ".");
@@ -31,7 +31,6 @@ export default function CalculatorScreen() {
 
   const [oat, setOat] = useState("");
   const [pa, setPa] = useState("");
-  const [tq, setTq] = useState("");
   const [e1, setE1] = useState<EngineState>(emptyEngine);
   const [e2, setE2] = useState<EngineState>(emptyEngine);
 
@@ -39,14 +38,14 @@ export default function CalculatorScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const engineValid = (e: EngineState) =>
-    num(e.itt) !== null && num(e.ng) !== null;
+    num(e.tq) !== null && num(e.itt) !== null && num(e.ng) !== null;
 
   const ready = useMemo(() => {
-    if (num(oat) === null || num(pa) === null || num(tq) === null) return false;
+    if (num(oat) === null || num(pa) === null) return false;
     if (!engineValid(e1)) return false;
     if (!engineValid(e2)) return false;
     return true;
-  }, [oat, pa, tq, e1, e2]);
+  }, [oat, pa, e1, e2]);
 
   // Edge-of-chart warnings (inputs outside the digitised chart range)
   const oatWarn = useMemo(() => {
@@ -61,13 +60,15 @@ export default function CalculatorScreen() {
       ? `Chart range ${RANGE.pa.min}…${RANGE.pa.max} ft`
       : undefined;
   }, [pa]);
-  const tqWarn = useMemo(() => {
-    const v = num(tq);
+  const tqWarnOf = (val: string) => {
+    const v = num(val);
     return v !== null && (v < RANGE.tq.min || v > RANGE.tq.max)
       ? `Chart range ${RANGE.tq.min}…${RANGE.tq.max}%`
       : undefined;
-  }, [tq]);
-  const edgeWarn = !!(oatWarn || paWarn || tqWarn);
+  };
+  const e1TqWarn = useMemo(() => tqWarnOf(e1.tq), [e1.tq]);
+  const e2TqWarn = useMemo(() => tqWarnOf(e2.tq), [e2.tq]);
+  const edgeWarn = !!(oatWarn || paWarn || e1TqWarn || e2TqWarn);
 
   const lastVerdict = useRef<boolean | null>(null);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -78,8 +79,8 @@ export default function CalculatorScreen() {
       const res = computeCheck({
         oat: num(oat)!,
         pressure_altitude: num(pa)!,
-        engine1: { torque: num(tq)!, itt: num(e1.itt)!, ng: num(e1.ng)! },
-        engine2: { torque: num(tq)!, itt: num(e2.itt)!, ng: num(e2.ng)! },
+        engine1: { torque: num(e1.tq)!, itt: num(e1.itt)!, ng: num(e1.ng)! },
+        engine2: { torque: num(e2.tq)!, itt: num(e2.itt)!, ng: num(e2.ng)! },
       });
       setResult(res);
       if (lastVerdict.current !== res.overall_pass) {
@@ -94,7 +95,7 @@ export default function CalculatorScreen() {
       setError("Calculation error — check your inputs");
       setResult(null);
     }
-  }, [oat, pa, tq, e1, e2]);
+  }, [oat, pa, e1, e2]);
 
   useEffect(() => {
     if (debounce.current) clearTimeout(debounce.current);
@@ -114,7 +115,6 @@ export default function CalculatorScreen() {
     Haptics.selectionAsync().catch(() => {});
     setOat("");
     setPa("");
-    setTq("");
     setE1(emptyEngine);
     setE2(emptyEngine);
     setResult(null);
@@ -169,20 +169,20 @@ export default function CalculatorScreen() {
               warning={paWarn}
             />
           </View>
-          <View style={{ height: spacing.md }} />
-          <NumberField
-            testID="input-tq"
-            label="Torque"
-            unit="%"
-            value={tq}
-            onChangeText={setTq}
-            warning={tqWarn}
-          />
         </View>
 
         {/* Engine 1 */}
         <Text style={styles.sectionLabel}>ENGINE 1</Text>
         <View style={styles.card}>
+          <NumberField
+            testID="input-e1-tq"
+            label="Torque"
+            unit="%"
+            value={e1.tq}
+            onChangeText={(t) => setE1((s) => ({ ...s, tq: t }))}
+            warning={e1TqWarn}
+          />
+          <View style={{ height: spacing.md }} />
           <View style={styles.fieldRow}>
             <NumberField
               testID="input-e1-itt"
@@ -204,6 +204,15 @@ export default function CalculatorScreen() {
         {/* Engine 2 */}
         <Text style={styles.sectionLabel}>ENGINE 2</Text>
         <View style={styles.card}>
+          <NumberField
+            testID="input-e2-tq"
+            label="Torque"
+            unit="%"
+            value={e2.tq}
+            onChangeText={(t) => setE2((s) => ({ ...s, tq: t }))}
+            warning={e2TqWarn}
+          />
+          <View style={{ height: spacing.md }} />
           <View style={styles.fieldRow}>
             <NumberField
               testID="input-e2-itt"
