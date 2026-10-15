@@ -34,6 +34,10 @@ export type ChartTrace = {
   tq_x: number;
   itt_x: number;
   ng_x: number;
+  itt_meas_x: number;
+  ng_meas_x: number;
+  itt_pass: boolean;
+  ng_pass: boolean;
 };
 
 export type CalcRequest = {

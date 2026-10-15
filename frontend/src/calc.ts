@@ -114,7 +114,15 @@ function lookupMaxLimits(tq: number, pa: number, oat: number): [number, number] 
   ];
 }
 
-function computeTrace(tq: number, pa: number, oat: number): ChartTrace {
+function computeTrace(
+  tq: number,
+  pa: number,
+  oat: number,
+  measItt: number,
+  measNg: number,
+  ittPass: boolean,
+  ngPass: boolean
+): ChartTrace {
   const cy = carryHeight(tq, pa);
   const [maxItt, maxNg] = lookupMaxLimits(tq, pa, oat);
   return {
@@ -123,6 +131,10 @@ function computeTrace(tq: number, pa: number, oat: number): ChartTrace {
     tq_x: v2x(CAL.tq, tq) / IMG_W,
     itt_x: v2x(CAL.itt, maxItt) / IMG_W,
     ng_x: v2x(CAL.ng, maxNg) / IMG_W,
+    itt_meas_x: v2x(CAL.itt, measItt) / IMG_W,
+    ng_meas_x: v2x(CAL.ng, measNg) / IMG_W,
+    itt_pass: ittPass,
+    ng_pass: ngPass,
   };
 }
 
@@ -168,7 +180,7 @@ function evaluateEngine(oat: number, pa: number, e: EngineInput): EngineResult {
     near_limit: nearLimit,
     op_limit_exceeded: opExceeded,
     notes,
-    trace: computeTrace(e.torque, pa, oat),
+    trace: computeTrace(e.torque, pa, oat, e.itt, e.ng, ittPass, ngPass),
   };
 }
 
@@ -177,13 +189,12 @@ export function computeCheck(req: CalcRequest): CalcResponse {
   const e1 = evaluateEngine(req.oat, req.pressure_altitude, req.engine1);
   const e2 = req.engine2 ? evaluateEngine(req.oat, req.pressure_altitude, req.engine2) : null;
   const overall = e1.passed && (e2 ? e2.passed : true);
-  const trace = computeTrace(req.engine1.torque, req.pressure_altitude, req.oat);
   return {
     oat: req.oat,
     pressure_altitude: req.pressure_altitude,
     engine1: e1,
     engine2: e2,
     overall_pass: overall,
-    trace,
+    trace: e1.trace,
   };
 }

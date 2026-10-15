@@ -22,10 +22,20 @@ import { ChartTrace as TraceData } from "@/src/api";
 
 const CHART = require("../../assets/images/chart_clean.png");
 const ASPECT = 2550 / 1147;
-const LINE = "#E5322D"; // red trace
+const LINE = "#111827"; // black max-allowable trace
 
 const clamp = (v: number) => Math.max(0, Math.min(1, v));
 const pct = (v: number): DimensionValue => `${clamp(v) * 100}%`;
+
+function MeasArrow({ x, pass }: { x: number; pass: boolean }) {
+  const color = pass ? colors.success : colors.error;
+  return (
+    <View style={[styles.arrow, { left: pct(x) }]}>
+      <Ionicons name="caret-down" size={18} color={color} />
+      <View style={[styles.arrowStem, { backgroundColor: color }]} />
+    </View>
+  );
+}
 
 function TraceOverlay({ t }: { t: TraceData }) {
   const top = clamp(t.top_y);
@@ -44,10 +54,13 @@ function TraceOverlay({ t }: { t: TraceData }) {
           { left: pct(tqx), top: pct(cy), width: `${(ngx - tqx) * 100}%` },
         ]}
       />
-      {/* vertical: TQ entry, ITT read, NG read */}
+      {/* vertical: TQ entry, ITT read, NG read (max allowable) */}
       <View style={[styles.vline, { left: pct(tqx), top: pct(top), height: `${h}%` }]} />
       <View style={[styles.vline, { left: pct(ittx), top: pct(top), height: `${h}%` }]} />
       <View style={[styles.vline, { left: pct(ngx), top: pct(top), height: `${h}%` }]} />
+      {/* measured value arrows at top of chart */}
+      <MeasArrow x={t.itt_meas_x} pass={t.itt_pass} />
+      <MeasArrow x={t.ng_meas_x} pass={t.ng_pass} />
     </View>
   );
 }
@@ -124,7 +137,7 @@ export function ChartTrace({ trace, label }: { trace: TraceData; label?: string 
         </View>
         <View style={styles.hintRow}>
           <Ionicons name="scan-outline" size={14} color={colors.muted} />
-          <Text style={styles.hint}>Tap to enlarge · red line shows your lookup</Text>
+          <Text style={styles.hint}>Tap to enlarge · arrows show measured ITT & NG</Text>
         </View>
       </Pressable>
 
@@ -182,6 +195,13 @@ const styles = StyleSheet.create({
   hint: { fontSize: font.sm, color: colors.muted },
   vline: { position: "absolute", width: 2, marginLeft: -1, backgroundColor: LINE },
   hline: { position: "absolute", height: 2, marginTop: -1, backgroundColor: LINE },
+  arrow: {
+    position: "absolute",
+    top: 0,
+    marginLeft: -9,
+    alignItems: "center",
+  },
+  arrowStem: { width: 2, height: 10, marginTop: -2 },
   modalRoot: {
     flex: 1,
     backgroundColor: "rgba(8,12,20,0.94)",
